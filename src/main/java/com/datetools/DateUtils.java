@@ -5,7 +5,7 @@ import java.util.Date;
 
 public class DateUtils {
 
-		//???????μ???????
+		//获取一个月的最后一天
 		public Date getMonthLastDay(Date date) {
 			Calendar cal =Calendar.getInstance();
 			cal.setTime(date);
@@ -14,7 +14,7 @@ public class DateUtils {
 			Date newDate=cal.getTime();
 			return newDate;
 		}
-		//???????μ?????
+		//获取一个月的第一天
 		public Date getMonthFirstDay(Date date) {
 			Calendar cal =Calendar.getInstance();
 			cal.setTime(date);
@@ -22,8 +22,8 @@ public class DateUtils {
 			Date newDate=cal.getTime();
 			return newDate;
 		}
-		//?????????????ж?????·?
-		public int getMonths(Date startDate, Date endDate) {
+		//获取另个时间之间有多少个月份
+		public int getMonthsBetweenTwoDate(Date startDate, Date endDate) {
 	        Calendar startCalendar =Calendar.getInstance();
 	        startCalendar.setTime(startDate);
 	        Calendar endCalendar =Calendar.getInstance();

@@ -22,19 +22,19 @@ public class Test {
 		FileOutputStream fis=new FileOutputStream(file,true);
 		
 		long t1 = System.currentTimeMillis();
-		System.out.println("��ʼ����excel:"+t1);
+		System.out.println("开始生成excel:"+t1);
 		XSSFWorkbook workbook = new XSSFWorkbook(file);
-		SXSSFWorkbook workbook2=new SXSSFWorkbook(1000);  // ��ֹ�ڴ����
-        // ����һ�����
+		//SXSSFWorkbook workbook2=new SXSSFWorkbook(1000);  // 防止内存溢出
+        // 生成一个表格
     	XSSFSheet sheet = workbook.createSheet();
-		// ������������
+		// 产生表格标题行
     	//XSSFRow row = sheet.createRow(1);
-        String[] array ={"���","Ӧ�ս��","ʵ�ս��"};   
+        String[] array ={"序号","应收金额","实收金额"};   
         XSSFDrawing patr = sheet.createDrawingPatriarch();
         XSSFCellStyle style2 = workbook.createCellStyle();
         XSSFFont font2 = workbook.createFont();  
         font2.setColor(XSSFFont.COLOR_NORMAL);  
-        font2.setFontName("����");
+        font2.setFontName("宋体");
         font2.setFontHeightInPoints((short) 11);
         style2.setFont(font2);
         DataFormat format = workbook.createDataFormat();    
@@ -55,7 +55,7 @@ public class Test {
     	        style.setBorderTop(XSSFCellStyle.BORDER_THIN);
     	        style.setBorderRight(XSSFCellStyle.BORDER_THIN);
     	        XSSFFont font = workbook.createFont();
-    			font.setFontName("����");
+    			font.setFontName("宋体");
     			font.setBoldweight(XSSFFont.BOLDWEIGHT_BOLD);
     			font.setFontHeightInPoints((short) 11);
     			font.setColor(XSSFFont.COLOR_NORMAL);
@@ -67,6 +67,6 @@ public class Test {
 		workbook.write(fis);
 		workbook.close();
 		long t2 = System.currentTimeMillis();
-		System.out.println("��������excel:"+t2);
+		System.out.println("结束生成excel:"+t2);
 	}
 }
