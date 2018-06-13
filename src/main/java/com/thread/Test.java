@@ -1,27 +1,41 @@
 package com.thread;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
 
 public class Test {
 
-	public static int getMonths(Date startDate, Date endDate) {
-        Calendar startCalendar =Calendar.getInstance();
-        startCalendar.setTime(startDate);
-        Calendar endCalendar =Calendar.getInstance();
-        endCalendar.setTime(endDate);
-        int diffYear = endCalendar.get(Calendar.YEAR) - startCalendar.get(Calendar.YEAR);
-        int diffMonth = diffYear * 12 + endCalendar.get(Calendar.MONTH) - startCalendar.get(Calendar.MONTH)+1;
-        return diffMonth;
-    }
-	
-	public static void main(String[] args) {
-		int a=getMonths(Calendar.getInstance().getTime(),Calendar.getInstance().getTime());
-		System.out.println(a);
+	public static void main(String[] args) throws IOException {
+
+		File file=new File(".");
+        System.out.println(file.exists());
+        System.out.println(file.isDirectory());
+        System.out.println(file.getAbsolutePath().toString());
+        
+        //没有参数
+        File fileCreateByNo=new File("");
+        System.out.println("fileCreateByNo=="+fileCreateByNo);
+        System.out.println("fileCreateByNo=="+fileCreateByNo.getCanonicalPath());
+        System.out.println("-----------------------------");
+        //一个点的参数
+        File fileCreateByPoint=new File(".");
+        System.out.println("fileCreateByPoint=="+fileCreateByPoint);
+        System.out.println("fileCreateByPoint=="+fileCreateByPoint.getCanonicalPath());
+        System.out.println("-----------------------------");
+        //两个点的参数
+        File fileTwoPoint = new File("..");  
+        System.out.println("fileTwoPoint=="+fileTwoPoint);
+        System.out.println("fileTwoPoint=="+fileTwoPoint.getCanonicalPath());
+        System.out.println("-----------------------------");
+        //一个点两条斜线的参数
+        File filePLL = new File(".\\");  
+        System.out.println("filePLL=="+filePLL);
+        System.out.println("filePLL=="+filePLL.getCanonicalPath());
+        System.out.println("-----------------------------");
+        //当前工作目录
+        String currentWorkPath=System.getProperty("user.dir");
+        System.out.println("currentWorkPath=="+currentWorkPath);
+        
 	}
 
 }
