@@ -1,5 +1,6 @@
 package com.dynamicproxy;
 
+
 public class NewStudentManagerImpl implements NewStudentManager {
 
 	@Override
