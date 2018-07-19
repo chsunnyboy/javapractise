@@ -30,5 +30,6 @@ dependencies {
 	//compile('org.apache.poi:poi:3.12')
 	compile('org.apache.poi:poi-ooxml:3.12')
 	runtime('com.h2database:h2')
+	runtime("org.postgresql:postgresql:9.4.1209")
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }
