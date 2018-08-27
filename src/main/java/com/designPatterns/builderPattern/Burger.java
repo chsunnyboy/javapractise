@@ -1,4 +1,4 @@
-package com.programpatterns.builderpattern;
+package com.designPatterns.builderPattern;
 
 public abstract class Burger implements Item {
 

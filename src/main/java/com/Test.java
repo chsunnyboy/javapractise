@@ -2,6 +2,8 @@ package com;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Test {
 
@@ -23,6 +25,13 @@ public class Test {
 //	    System.out.println("Opened database successfully");
 		String a="1,2,3,5,6,8,";
 		System.out.println(a.substring(0,a.length()));
+		
+		List list=new ArrayList();
+//		list.add(1);
+//		list.add(2);
+//		list.add(3);
+		list.remove(Integer.valueOf(14));
+		System.out.println(list.toString());
 	}
 
 }

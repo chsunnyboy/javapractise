@@ -1,17 +1,17 @@
-package com.programpatterns.builderpattern;
+package com.designPatterns.builderPattern;
 
-public class ChickenBurger extends Burger {
+public class Coke extends ColdDrink {
 
 	@Override
 	public String name() {
 		// TODO Auto-generated method stub
-		return "ChickenBurger ";
+		return "Coke";
 	}
 
 	@Override
 	public float price() {
 		// TODO Auto-generated method stub
-		return 50.0f;
+		return 8.0f;
 	}
 
 }

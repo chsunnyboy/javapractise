@@ -1,13 +1,13 @@
 /**
  * 
  */
-package com.programpatterns.builderpattern;
+package com.designPatterns.builderPattern;
 
 /**
  * @author Administrator
  *
  */
-public class Bottle implements Packing {
+public class Wrapper implements Packing {
 
 	/* (non-Javadoc)
 	 * @see patterns.builderpattern.Packing#packing()
@@ -15,7 +15,7 @@ public class Bottle implements Packing {
 	@Override
 	public String pack() {
 		// TODO Auto-generated method stub
-		return "Bottle";
+		return "Paper";
 	}
 
 }
