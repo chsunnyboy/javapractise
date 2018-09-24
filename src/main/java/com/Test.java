@@ -3,35 +3,18 @@ package com;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Test {
 
-	public static void main(String[] args) {
-//		String host = "jdbc:postgresql://localhost:5432/bugsaas";
-//	    String username = "saas_ibs_dev";
-//	    String password = "saas_ibs_dev";
-//	    Connection c = null;
-//	    try {
-//	        Class.forName("org.postgresql.Driver");
-//	        c = DriverManager.getConnection(host, username, password);
-//	        c.prepareStatement("select * FROM information_schema.sql_features;");
-//	       
-//	    } catch (Exception e) {
-//	        e.printStackTrace();
-//	        System.err.println(e.getClass().getName() + ": " + e.getMessage());
-//	        System.exit(0);
-//	    }
-//	    System.out.println("Opened database successfully");
-		String a="1,2,3,5,6,8,";
-		System.out.println(a.substring(0,a.length()));
-		
-		List list=new ArrayList();
-//		list.add(1);
-//		list.add(2);
-//		list.add(3);
-		list.remove(Integer.valueOf(14));
-		System.out.println(list.toString());
-	}
-
+	private static final List<Map<Integer,Integer>> test=new ArrayList<Map<Integer,Integer>>();
+    public static void main(String []args) throws InterruptedException {
+    	int a=4;
+    	for(int i=1;i<+a;i++){
+    		System.out.println(i);
+    	}
+    }
 }
+
