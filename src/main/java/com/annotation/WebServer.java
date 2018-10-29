@@ -3,8 +3,8 @@ package com.annotation;
 public class WebServer {
 	private String facatory;
 	@MiddleWare("tomcat")
-	private String name;
-	private String type;
+	public String name;
+	public String type;
 	public String getFacatory() {
 		return facatory;
 	}

@@ -11,6 +11,8 @@ public class TestAnnotation {
 		for(Field f:md) {
 			if(f.isAnnotationPresent(MiddleWare.class)) {
 				System.out.println("------");
+				MiddleWare middleWare=f.getAnnotation(MiddleWare.class);
+				System.out.println(middleWare.value());
 			}
 		}
 		System.out.println(md);
