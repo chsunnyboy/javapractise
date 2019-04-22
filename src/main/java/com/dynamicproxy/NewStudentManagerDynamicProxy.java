@@ -12,9 +12,12 @@ public class NewStudentManagerDynamicProxy implements InvocationHandler {
 		this.targetObject=targetObject;
 		return targetObject;
 	}
-//	public NewStudentManagerDynamicProxy(Object targetObject){
-//		this.targetObject=targetObject;
-//	}
+	public NewStudentManagerDynamicProxy() {
+		
+	}
+	public NewStudentManagerDynamicProxy(Object targetObject){
+		this.targetObject=targetObject;
+	}
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 		// TODO Auto-generated method stub

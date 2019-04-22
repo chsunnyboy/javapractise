@@ -11,7 +11,8 @@ public class Client {
 		NewStudentManagerDynamicProxy handler=new NewStudentManagerDynamicProxy();
 		handler.newProxy(nsmi);
 //		NewStudentManagerDynamicProxy handler=new NewStudentManagerDynamicProxy(nsmi);
-		NewStudentManager newStudentManagerImpl=(NewStudentManager) Proxy.newProxyInstance(handler.getClass().getClassLoader(), nsmi.getClass().getInterfaces(), handler);
+		NewStudentManager newStudentManagerImpl=(NewStudentManager) Proxy.newProxyInstance(
+				handler.getClass().getClassLoader(), nsmi.getClass().getInterfaces(), handler);
 		newStudentManagerImpl.addNewStudent("chengqiu", "123456");
 		newStudentManagerImpl.deleteStudent(1);
 		newStudentManagerImpl.updateStudent(1, "zhangsan", "888888");
