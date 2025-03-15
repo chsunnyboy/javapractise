@@ -29,11 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
-/**
- * 获取运行时系统内存使用状况，饼用socket获取状态信息
- * @author Administrator
- *
- */
+
 public final class ApplicationRuntimeManager implements ApplicationListener<ApplicationReadyEvent> {
 	final Logger logger = LoggerFactory.getLogger(getClass());
 

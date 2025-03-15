@@ -78,7 +78,7 @@ final class RuntimeProcessor implements Runnable
 			OutputStreamWriter oswr=new OutputStreamWriter(out);
 			String str=null;
 			while((str=br.readLine())!=null){
-				System.out.println("客户端发送了："+str);
+				System.out.println("瀹㈡埛绔彂閫佷簡"+str);
 				oswr.write(str);
 			}
 			
