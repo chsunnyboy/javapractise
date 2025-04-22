@@ -1,72 +1,56 @@
 package com.dtl645.dlt64507;
 
-import com.dtl645.base.BaseMsg;
 import com.dtl645.base.SerialParameters;
 import com.dtl645.dlt64507.message.ReadDataMsg07;
 import com.dtl645.requests.MsgRequest;
 import com.dtl645.requests.MsgResponse;
 import com.fazecast.jSerialComm.SerialPort;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 public class Test {
+    private static final Logger logger = LoggerFactory.getLogger(Test.class);
     public static void main(String[] args) throws Exception {
-        /*SerialPort comPort = SerialPort.getCommPort("COM1"); // 替换为你的串口名称
-        comPort.setBaudRate(9600); // 设置波特率
-        comPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 10, 1); // 设置超时
-        comPort.openPort(); // 打开串口
-        comPort.setNumStopBits(1);
-        comPort.setNumDataBits(8);
-        comPort.setParity(SerialPort.EVEN_PARITY);
-        // 电压数据块
-        //byte[] dataToSend = {0x68, 0x41, 0x07, 0x00, 0x00, 0x16, 0x04, 0x68, 0x11, 0x04, 0x33, 0x32, 0x34, 0x35, (byte)0x215, 0x16};
-        //A相电压
-        //byte[] dataToSend = {0x68, 0x41, 0x07, 0x00, 0x00, 0x16, 0x04, 0x68, 0x11, 0x04, 0x33, 0x34, 0x34, 0x35, (byte)0x217, 0x16};
-        //读取电能量 1997
-        //byte[] dataToSend = {0x68, 0x41, 0x07, 0x00, 0x00, 0x16, 0x04, 0x68, 0x01, 0x02, 0x43, (byte)0xC3, (byte)0x23B, 0x16};
-        //读取电能量 2007
-        byte[] dataToSend = {(byte)0xFE,(byte)0xFE,(byte)0xFE,(byte)0xFE,0x68, 0x41, 0x07, 0x00, 0x00, 0x16, 0x04, 0x68, 0x11, 0x04, 0x33, 0x33 , 0x34 , 0x33, (byte)0x214, 0x16};
 
-        comPort.writeBytes(dataToSend, dataToSend.length); // 发送数据
+        SerialParameters params = new SerialParameters("COM3",9600,SerialPort.FLOW_CONTROL_RTS_ENABLED,SerialPort.FLOW_CONTROL_CTS_ENABLED,8,1,SerialPort.EVEN_PARITY);
+        //String id="041600000741";
+        String id="000001703515";
+        ReadDataMsg07 readMsg = new ReadDataMsg07(id,params);
+        //readMsg.addDataFlags("02010100",3);
 
-        Thread.sleep(1000);
-        // 接收数据
-        byte[] readBuffer = new byte[1000]; // 根据需要调整缓冲区大小
-        int numRead = comPort.readBytes(readBuffer, readBuffer.length);
+        MsgRequest msgRequest = new MsgRequest(params);
 
-        String hex = bytesToHex(readBuffer, numRead);
-        if (numRead > 0) {
-            System.out.println("Received data: " + hex);
-        }
-        //AgreementDemo.analysis(hex);
-        comPort.closePort(); // 关闭串口*/
+        InputStream resourceAsStream = Test.class.getResourceAsStream("/dataflags/dataflags.txt");
+        InputStreamReader inputStreamReader = new InputStreamReader(resourceAsStream);
+        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+        Stream<String> lines = bufferedReader.lines();
+        AtomicInteger times= new AtomicInteger();
+        lines.forEach(v->{
+            readMsg.clearDataFlags();
+            if(!v.startsWith("#") && !"".equals(v)){
+                readMsg.addDataFlags(v.split(",")[0],Integer.valueOf(v.split(",")[1]));
+                Map<String, byte[]> response = msgRequest.request(readMsg.getByteMsgs());
+                Map<String, MsgResponse<String>> stringMsgResponseMap = readMsg.parseDlt645Response(response);
 
-
-        ReadDataMsg07 req = new ReadDataMsg07("41600000741",new byte[]{0x33,0x33,0x34,0x33});
-        /*byte[] bytes = req.buildDlt645Request();
-        comPort.writeBytes(bytes, bytes.length);
-        Thread.sleep(1000);
-        // 接收数据
-        byte[] readBuffer = new byte[1000]; // 根据需要调整缓冲区大小
-        int numRead = comPort.readBytes(readBuffer, readBuffer.length);
-
-        String hex = bytesToHex(readBuffer, numRead);
-        if (numRead > 0) {
-            System.out.println("Received data: " + hex);
-        }
-        //AgreementDemo.analysis(hex);
-        comPort.closePort(); // 关闭串口
-        */
-
-
-        SerialParameters params = new SerialParameters("COM1",9600,SerialPort.FLOW_CONTROL_RTS_ENABLED,SerialPort.FLOW_CONTROL_CTS_ENABLED,8,1,SerialPort.EVEN_PARITY);
-        List<BaseMsg> readDataMsgs = new ArrayList<>();
-        readDataMsgs.add(req);
-        MsgRequest msgRequest = new MsgRequest();
-        Map<String, MsgResponse> request = msgRequest.request(readDataMsgs, params);
-        System.out.println(request.get("READ_DATA").getData());
+                for(Map.Entry<String, MsgResponse<String>> entry : stringMsgResponseMap.entrySet()){
+                    logger.info(entry.getKey()+"：");
+                    if(entry.getValue().isSuccess()){
+                        logger.info(entry.getValue().getData());
+                    }else{
+                        logger.info(entry.getValue().getMessage());
+                    }
+                }
+                times.getAndIncrement();
+                logger.info("读取数据标识对应的数据次数**************************************"+times.get());
+            }
+        });
     }
 
     private static String bytesToHex(byte[] bytes, int length) {

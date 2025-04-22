@@ -1,9 +1,7 @@
 package com.dtl645.base;
 
 import com.dtl645.requests.MsgResponse;
-
-import java.math.BigDecimal;
-import java.text.DecimalFormat;
+import java.util.Map;
 
 public abstract class BaseMsg {
     private final byte start = 0x68;
@@ -11,6 +9,20 @@ public abstract class BaseMsg {
     private String address;
     public BaseMsg(String address) {
         this.address = address;
+    }
+    protected byte[] getFlagByteValue07(String flagName){
+        byte[] flagByteValue = new byte[4];
+        flagByteValue[0]=(byte)(Integer.valueOf(flagName.substring(0,2),16).byteValue()+(byte)0x33);
+        flagByteValue[1]=(byte)(Integer.valueOf(flagName.substring(2,4),16).byteValue()+(byte)0x33);
+        flagByteValue[2]=(byte)(Integer.valueOf(flagName.substring(4,6),16).byteValue()+(byte)0x33);
+        flagByteValue[3]=(byte)(Integer.valueOf(flagName.substring(6,8),16).byteValue()+(byte)0x33);
+        // 手动交换首尾元素
+        for (int i = 0; i < flagByteValue.length / 2; i++) {
+            int temp = flagByteValue[i];
+            flagByteValue[i] = flagByteValue[flagByteValue.length - 1 - i];
+            flagByteValue[flagByteValue.length - 1 - i] = (byte)temp;
+        }
+        return flagByteValue;
     }
     public byte[] getHeadMsg() {
         if(address.length()<12){
@@ -39,17 +51,10 @@ public abstract class BaseMsg {
         }
         return sb.toString();
     }
-    public String parseData(byte[] data,int scale){
-        StringBuilder sb = new StringBuilder();
-        for(int i=data.length-1 ; i>=0; i--){
-            sb.append(String.format("%02X", (byte)(data[i]-0x33)));
-        }
-        BigDecimal num = new BigDecimal(Long.parseLong(sb.toString(),10));
-        return num.divide(new BigDecimal(Math.pow(10,scale)), scale, BigDecimal.ROUND_HALF_UP).toString();
-    }
+
     public String bytesToHex(byte value) {
         return String.format("%02X", value);
     }
-    public abstract byte[] buildDlt645Request();
-    public abstract MsgResponse parseDlt645Response(byte[] response, int byteLength);
+    public abstract byte[] buildDlt645Request(String reqFlagName);
+    public abstract Map<String,MsgResponse<String>> parseDlt645Response(Map<String, byte[]> response);
 }
