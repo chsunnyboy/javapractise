@@ -1,15 +1,16 @@
 package com.dtl645.base;
 
 import com.dtl645.requests.MsgResponse;
+
 import java.util.Map;
 
 public abstract class BaseMsg {
     private final byte start = 0x68;
     private final byte end = 0x68;
-    private String address;
+    /*private String address;
     public BaseMsg(String address) {
         this.address = address;
-    }
+    }*/
     protected byte[] getFlagByteValue07(String flagName){
         byte[] flagByteValue = new byte[4];
         flagByteValue[0]=(byte)(Integer.valueOf(flagName.substring(0,2),16).byteValue()+(byte)0x33);
@@ -24,7 +25,7 @@ public abstract class BaseMsg {
         }
         return flagByteValue;
     }
-    public byte[] getHeadMsg() {
+    public byte[] getHeadMsg(String address) {
         if(address.length()<12){
             address = String.format("%12s", address).replace(' ', '0');
         }
@@ -55,6 +56,6 @@ public abstract class BaseMsg {
     public String bytesToHex(byte value) {
         return String.format("%02X", value);
     }
-    public abstract byte[] buildDlt645Request(String reqFlagName);
+    public abstract byte[] buildDlt645Request(String address,String reqFlagName);
     public abstract Map<String,MsgResponse<String>> parseDlt645Response(Map<String, byte[]> response);
 }

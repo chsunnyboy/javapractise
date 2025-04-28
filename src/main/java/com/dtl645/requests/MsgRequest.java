@@ -26,7 +26,7 @@ public class MsgRequest {
     public boolean openPort(){
         comPort = SerialPort.getCommPort(parameters.getPortName()); // 替换为你的串口名称
         comPort.setBaudRate(parameters.getBaudRate()); // 设置波特率
-        comPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING , 1000, 1); // 设置超时
+        comPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING , 300, 1); // 设置超时
         comPort.setNumStopBits(parameters.getStopbits());
         comPort.setNumDataBits(parameters.getDatabits());
         comPort.setParity(parameters.getParity());
@@ -36,10 +36,10 @@ public class MsgRequest {
         }
         return true;
     }
-    private boolean isOpen() {
+    public boolean isOpen() {
         return comPort.isOpen();
     }
-    private boolean closePort() {
+    public boolean closePort() {
         if (comPort != null && comPort.isOpen()) {
             return comPort.closePort();
         }
@@ -48,28 +48,19 @@ public class MsgRequest {
 
     public Map<String,byte[]> request(Map<String, byte[]> msgs){
         Map<String,byte[]> result = new HashMap<>();
-        openPort();
-        int i=0;
-        while(!isOpen() && i++ < 5){
-            try {
-                Thread.sleep(200);
-            } catch (InterruptedException e) {
-                logger.error(e.getMessage());
-            }
-            openPort();
-        }
-        for(String flagName : msgs.keySet()){
-            byte[] bytes = msgs.get(flagName);
+        for(String key : msgs.keySet()){
+            String flagName = key.split(":")[1];
+            byte[] bytes = msgs.get(key);
             logger.info("发送报文：{}，数据标识：{}", bytesToHex(bytes,bytes.length),flagName);
             try {
                 byte[] resBytes= writeAndRead(bytes);
-                result.put(flagName,resBytes);
+                result.put(key,resBytes);
             } catch (Exception e) {
                 logger.error("获取数据异常：{}，数据标识：{}",getExceptionMsg(e),flagName);
-                result.put(flagName,null);
+                result.put(key,null);
             }
         }
-        closePort(); // 关闭串口
+//        closePort(); // 关闭串口
         return result;
     }
     public String getExceptionMsg(Exception e){

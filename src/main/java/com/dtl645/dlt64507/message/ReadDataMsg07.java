@@ -1,7 +1,6 @@
 package com.dtl645.dlt64507.message;
 
 import com.dtl645.base.BaseMsg;
-import com.dtl645.base.SerialParameters;
 import com.dtl645.dlt64507.controllCode.ControllCode07;
 import com.dtl645.requests.MsgRequest;
 import com.dtl645.requests.MsgResponse;
@@ -22,15 +21,14 @@ public class ReadDataMsg07 extends BaseMsg {
     private static final Logger logger = LoggerFactory.getLogger(ReadDataMsg07.class);
     Map<String,byte[]> byteMsgs = new HashMap<String,byte[]>();
     Map<String,Integer> flagFormats=new HashMap<>();
-    SerialParameters params;
-    public ReadDataMsg07(String address, SerialParameters params) {
-        super(address);
-        this.params=params;
+    MsgRequest msgRequest;
+    public void setMsgRequest(MsgRequest msgRequest) {
+        this.msgRequest = msgRequest;
     }
-    public void addDataFlags(String reqFlagName,Integer flagFormat) {
-        byte[] bytes = this.buildDlt645Request(reqFlagName);
-        byteMsgs.put(reqFlagName,bytes);
-        flagFormats.put(reqFlagName,flagFormat);
+    public void addDataFlags(String address , String reqFlagName, Integer flagFormat) {
+        byte[] bytes = this.buildDlt645Request(address,reqFlagName);
+        byteMsgs.put(address+":"+reqFlagName,bytes);
+        flagFormats.put(address+":"+reqFlagName,flagFormat);
     }
     public void clearDataFlags() {
         byteMsgs.clear();
@@ -43,9 +41,9 @@ public class ReadDataMsg07 extends BaseMsg {
         this.byteMsgs = byteMsgs;
     }
     @Override
-    public byte[] buildDlt645Request(String reqDataFlags) {
+    public byte[] buildDlt645Request(String address,String reqDataFlags) {
         byte[] wake = new byte[]{ (byte)0xFE , (byte)0xFE , (byte)0xFE , (byte)0xFE };
-        byte[] headMsg = super.getHeadMsg();
+        byte[] headMsg = super.getHeadMsg(address);
         byte[] dataFlags = this.getFlagByteValue07(reqDataFlags);
         byte[] mergedArray  =  new byte[headMsg.length + 1 + 1 + dataFlags.length];
 
@@ -62,9 +60,9 @@ public class ReadDataMsg07 extends BaseMsg {
         return result;
     }
 
-    public byte[] buildDlt645Request_hx(String reqDataFlags,Integer seq){
+    public byte[] buildDlt645Request_hx(String address,String reqDataFlags,Integer seq){
         byte[] wake = new byte[]{ (byte)0xFE , (byte)0xFE , (byte)0xFE , (byte)0xFE };
-        byte[] headMsg = super.getHeadMsg();
+        byte[] headMsg = super.getHeadMsg(address);
         byte[] dataFlags = this.getFlagByteValue07(reqDataFlags);
         byte[] mergedArray  =  new byte[headMsg.length + 1 + 1 + dataFlags.length+1];
 
@@ -85,9 +83,11 @@ public class ReadDataMsg07 extends BaseMsg {
     public Map<String,MsgResponse<String>> parseDlt645Response(Map<String, byte[]> response) {
         Map<String,MsgResponse<String>> result = new HashMap<>();
         Set<String> keyset = response.keySet();
-        for(String flagCode : keyset){
+        for(String key : keyset){
+            String address = key.split(":")[0];
+            String flagCode = key.split(":")[1];
             MsgResponse<String> resp=new MsgResponse<>();
-            byte[] bytes = response.get(flagCode);//单次读取数据响应结果
+            byte[] bytes = response.get(key);//单次读取数据响应结果
             if(bytes!=null && bytes.length>0){
                 try {
                     int byteLength = bytes.length;
@@ -133,7 +133,7 @@ public class ReadDataMsg07 extends BaseMsg {
                         }else{
                             //获取数据
                             System.arraycopy(bytes, index+14, data, 0,dataLength-4);
-                            resp = RespDataAnalyse.parseData(data, this.flagFormats.get(flagCode));
+                            resp = RespDataAnalyse.parseData(data, this.flagFormats.get(key));
                         }
                     }else if(controllCode == ControllCode07.READ_DATA_RESP_NORMAL_EXISTSUBDATA.controllCode()){
                         //正常响应有后续数据
@@ -146,12 +146,11 @@ public class ReadDataMsg07 extends BaseMsg {
                             List<byte[]> list = new ArrayList<byte[]>();
                             list.add(Arrays.copyOfRange(bytes,index+14,bytes.length-2));
                             while(hasNext){
-                                byte[] bytes_hx = buildDlt645Request_hx(flagCode, ++seq);
+                                byte[] bytes_hx = buildDlt645Request_hx(address,flagCode, ++seq);
                                 Map<String, byte[]> map = new HashMap<>();
-                                map.put(flagCode,bytes_hx);
-                                MsgRequest msgRequest = new MsgRequest(this.params);
-                                Map<String, byte[]> bytes_hx_map = msgRequest.request(map);
-                                byte[] bytes_hx_resp = bytes_hx_map.get(flagCode);
+                                map.put(key,bytes_hx);
+                                Map<String, byte[]> bytes_hx_map = this.msgRequest.request(map);
+                                byte[] bytes_hx_resp = bytes_hx_map.get(key);
                                 int index2 = findIndex(bytes_hx_resp, (byte) 0x68);
                                 byte controllCode2 = bytes_hx_resp[index2+8];
                                 if(controllCode2 == ControllCode07.READ_DATA_SUBDATA_NORMAL_NOEXISTSUBDATA.controllCode()){
@@ -171,12 +170,12 @@ public class ReadDataMsg07 extends BaseMsg {
                                     System.arraycopy(list.get(i),0,bytes_all,j,list.get(i).length);
                                     j+=list.get(i).length;
                                 }
-                                resp = RespDataAnalyse.parseData(bytes_all, this.flagFormats.get(flagCode));
+                                resp = RespDataAnalyse.parseData(bytes_all, this.flagFormats.get(key));
                             }
                         }
                     }else if(controllCode == ControllCode07.READ_DATA_RESP_ERR.controllCode()){
                         //异常响应
-                        resp = RespDataAnalyse.parseErrData(bytes, this.flagFormats.get(flagCode));
+                        resp = RespDataAnalyse.parseErrData(bytes, this.flagFormats.get(key));
                     }
                 } catch (Exception e) {
                     logger.info("数据处理异常：数据标识{},异常信息{}",flagCode,getExceptionMsg(e));
@@ -187,7 +186,7 @@ public class ReadDataMsg07 extends BaseMsg {
                 resp.setSuccess(false);
                 resp.setMessage("请求数据失败");
             }
-            result.put(flagCode,resp);
+            result.put(key,resp);
         }
         return result;
     }

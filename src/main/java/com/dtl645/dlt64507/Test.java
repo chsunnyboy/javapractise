@@ -19,23 +19,37 @@ public class Test {
     private static final Logger logger = LoggerFactory.getLogger(Test.class);
     public static void main(String[] args) throws Exception {
 
-        SerialParameters params = new SerialParameters("COM3",9600,SerialPort.FLOW_CONTROL_RTS_ENABLED,SerialPort.FLOW_CONTROL_CTS_ENABLED,8,1,SerialPort.EVEN_PARITY);
-        //String id="041600000741";
-        String id="000001703515";
-        ReadDataMsg07 readMsg = new ReadDataMsg07(id,params);
-        //readMsg.addDataFlags("02010100",3);
+        SerialParameters params = new SerialParameters("COM3",9600,SerialPort.FLOW_CONTROL_DISABLED,SerialPort.FLOW_CONTROL_DISABLED,8,1,SerialPort.EVEN_PARITY);
+        String id="041600000741";
+//        String id="000001703515";
 
         MsgRequest msgRequest = new MsgRequest(params);
+        ReadDataMsg07 readMsg = new ReadDataMsg07();
+        readMsg.setMsgRequest(msgRequest);
+        readMsg.addDataFlags(id,"03010000",7);
 
-        InputStream resourceAsStream = Test.class.getResourceAsStream("/dataflags/dataflags.txt");
+        /*InputStream resourceAsStream = Test.class.getResourceAsStream("/dataflags/dataflags.txt");
         InputStreamReader inputStreamReader = new InputStreamReader(resourceAsStream);
         BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
         Stream<String> lines = bufferedReader.lines();
-        AtomicInteger times= new AtomicInteger();
-        lines.forEach(v->{
+        AtomicInteger times= new AtomicInteger();*/
+
+        msgRequest.openPort();
+        int i=0;
+        while(!msgRequest.isOpen() && i++ < 5){
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                logger.error(e.getMessage());
+            }
+            msgRequest.openPort();
+        }
+
+
+        /*lines.forEach(v->{
             readMsg.clearDataFlags();
             if(!v.startsWith("#") && !"".equals(v)){
-                readMsg.addDataFlags(v.split(",")[0],Integer.valueOf(v.split(",")[1]));
+                readMsg.addDataFlags(id,v.split(",")[0],Integer.valueOf(v.split(",")[1]));
                 Map<String, byte[]> response = msgRequest.request(readMsg.getByteMsgs());
                 Map<String, MsgResponse<String>> stringMsgResponseMap = readMsg.parseDlt645Response(response);
 
@@ -51,6 +65,19 @@ public class Test {
                 logger.info("读取数据标识对应的数据次数**************************************"+times.get());
             }
         });
+        msgRequest.closePort();*/
+
+        Map<String, byte[]> response = msgRequest.request(readMsg.getByteMsgs());
+        Map<String, MsgResponse<String>> stringMsgResponseMap = readMsg.parseDlt645Response(response);
+
+        for(Map.Entry<String, MsgResponse<String>> entry : stringMsgResponseMap.entrySet()){
+            logger.info(entry.getKey()+"：");
+            if(entry.getValue().isSuccess()){
+                logger.info(entry.getValue().getData());
+            }else{
+                logger.info(entry.getValue().getMessage());
+            }
+        }
     }
 
     private static String bytesToHex(byte[] bytes, int length) {
